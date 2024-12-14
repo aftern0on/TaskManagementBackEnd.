@@ -1,6 +1,6 @@
 FROM python:3.11-slim
-#RUN apt update && apt install build-essential libpg-dev && apt clean
-RUN pip install pipenv uvicorn
+RUN apt update && apt clean
+RUN pip install pipenv
 WORKDIR /app
 COPY . /app
 RUN pipenv install --system --deploy --ignore-pipfile
