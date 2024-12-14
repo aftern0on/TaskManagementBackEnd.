@@ -23,3 +23,8 @@ class User(BaseUser):
 
     class Config:
         from_attributes = True
+
+
+class RefreshToken(BaseModel):
+    """Схема запроса обновления токенов"""
+    token: str
