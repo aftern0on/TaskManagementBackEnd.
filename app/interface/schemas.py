@@ -27,4 +27,4 @@ class User(BaseUser):
 
 class RefreshToken(BaseModel):
     """Схема запроса обновления токенов"""
-    token: str
+    refresh: str

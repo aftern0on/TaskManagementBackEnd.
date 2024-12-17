@@ -12,6 +12,7 @@ aiosqlite = "*"
 passlib = {extras = ["bcrypt"], version = "*"}
 pyjwt = "*"
 redis = {extras = ["async"], version = "*"}
+alembic = "*"
 
 [dev-packages]
 

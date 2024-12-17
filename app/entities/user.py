@@ -5,8 +5,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserEntity:
-    def __init__(self, id: int, username: str, hashed_password: str):
-        self.id = id
+    def __init__(self, user_id: int, username: str, hashed_password: str):
+        self.id: int = int(user_id)
         self.username = username
         self.hashed_password = hashed_password
 
