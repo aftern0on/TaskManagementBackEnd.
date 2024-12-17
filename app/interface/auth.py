@@ -12,6 +12,8 @@ router = APIRouter()
 
 @router.post("/register/")
 async def register(user: RegisterUser, user_repo: UserRepository = Depends(get_user_repo)):
+    """Регистрация нового пользователя. Нельзя зарегистрировать пользователя с существующим username.
+    Проверяется password и confirm_password."""
     new_user = await register_case(user.username, user.password, user.confirm_password, user_repo)
     return {"id": new_user.id, "username": new_user.username}
 
@@ -23,6 +25,8 @@ async def login(
         token_repo: TokenRepository = Depends(get_token_repo),
         token_fact: TokenFactory = Depends(get_token_factory)
 ):
+    """Возвращает access и refresh токены для авторизации в системе.
+    Время жизни access-токена: 15 минут, refresh-токена: 15 дней."""
     tokens: dict = await login_case(user.username, user.password, user_repo, token_repo, token_fact)
     return tokens
 
@@ -33,6 +37,8 @@ async def refresh_token(
         token_repo: TokenRepository = Depends(get_token_repo),
         token_fact: TokenFactory = Depends(get_token_factory)
 ):
+    """Обновление токенов. Не требует авторизации, только refresh.
+    Ранее использованный токен будет недействительный."""
     tokens: dict = await refresh_case(refresh.refresh, token_repo, token_fact)
     return tokens
 

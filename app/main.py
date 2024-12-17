@@ -8,11 +8,13 @@ app = FastAPI()
 
 @app.get("/")
 async def echo():
+    """Проверка состояния текущего сервиса авторизации."""
     return {"echo": True}
 
 
 @app.get("/redis_ping")
 async def redis():
+    """Проверка состояния redis сервиса."""
     try:
         pong = await redis_client.ping()
         return {"redis": "alive" if pong else "dead"}
