@@ -1,5 +1,3 @@
-import os
-
 from fastapi import Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 

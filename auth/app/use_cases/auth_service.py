@@ -1,5 +1,4 @@
 import uuid
-from enum import Enum
 from secrets import compare_digest
 
 from app.entities.token import AccessTokenEntity, TokenEntity, RefreshTokenEntity
