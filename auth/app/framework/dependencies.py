@@ -1,7 +1,9 @@
 from fastapi import Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.entities.token import AccessTokenEntity
 from app.entities.user import UserEntity
+from app.exceptions import AuthorizationError
 from app.framework.database import AsyncSession
 from app.framework.factory import TokenFactory
 from app.framework.redis import redis_client
@@ -27,11 +29,15 @@ async def get_token_factory() -> TokenFactory:
     return TokenFactory(SECRET_KEY, ENCODE_ALGORITHM)
 
 
-async def get_current_user(
+async def get_auth_user(
         credentials: HTTPAuthorizationCredentials = Security(HTTPBearer()),
         token_fact: TokenFactory = Depends(get_token_factory),
+        token_repo: TokenRepository = Depends(get_token_repo),
         user_repo: UserRepository = Depends(get_user_repo)
 ) -> UserEntity:
-    token = credentials.credentials
-    user = await auth_case(token, token_fact, user_repo)
+    if await token_repo.check_access_in_blacklist(credentials.credentials):
+        raise AuthorizationError(extra='Token has been banned')
+    token: AccessTokenEntity = await token_fact.decode_token(credentials.credentials, "access")
+    user = await auth_case(token, token_fact, token_repo, user_repo)
+    user.access_token = token
     return user

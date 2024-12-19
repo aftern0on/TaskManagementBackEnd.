@@ -1,7 +1,7 @@
 from redis.asyncio import Redis
 from sqlalchemy import select
 
-from app.entities.token import RefreshTokenEntity
+from app.entities.token import RefreshTokenEntity, AccessTokenEntity
 from app.entities.user import UserEntity
 from app.framework.database import AsyncSession
 from app.framework.models import User as UserModel
@@ -60,10 +60,18 @@ class TokenRepository:
         user_id: int = int(redis_data)
         return await self.user_repo.get_by_id(user_id)
 
-    async def save_refresh(self, token: RefreshTokenEntity, ttl: int, user_id: int):
+    async def save_refresh(self, token: RefreshTokenEntity, ttl: int | None, user_id: int):
         """Сохранение refresh-токена для идентификации и последующего использования"""
-        await self.redis_client.setex(f"refresh:{token.value}", ttl, user_id)
+        await self.redis_client.setex(f"refresh:{token.value}", ttl or token.ttl, user_id)
 
     async def drop_refresh(self, token: RefreshTokenEntity):
         """Удаление refresh-токена из хранилища и сделать его недействительным"""
         await self.redis_client.delete(f"refresh:{token}")
+
+    async def ban_access(self, token: AccessTokenEntity, ttl: int | None, user_id: int):
+        """Забанить access-токен, добавив в blacklist"""
+        await self.redis_client.setex(f"blacklist:{token.value}", ttl or token.ttl, user_id)
+
+    async def check_access_in_blacklist(self, token: str) -> bool:
+        """Проверить access-токен в blacklist"""
+        return await self.redis_client.exists(f"blacklist:{token}") > 0

@@ -8,7 +8,7 @@ class TokenEntity:
         self.exp: int = exp
         self.jti: str = jti or str(uuid.uuid4())
         self.iat: int = int(datetime.datetime.now().timestamp())
-        self.typ: str = 'r'
+        self.typ: str = 'refresh'
 
     @property
     def ttl(self) -> int:
@@ -27,4 +27,4 @@ class AccessTokenEntity(RefreshTokenEntity):
     def __init__(self, value: str, exp: int, user_id: int, jti: str = None):
         super().__init__(value, exp, jti)
         self.user_id: int = user_id
-        self.typ: str = 'a'
+        self.typ: str = 'access'

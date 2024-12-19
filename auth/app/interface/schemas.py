@@ -16,13 +16,9 @@ class RegisterUser(LoginUser):
     confirm_password: str
 
 
-class User(BaseUser):
-    """Представление модели в базе данных"""
+class OutputUserData(BaseUser):
+    """Форма данных пользователя"""
     id: int
-    hashed_password: str
-
-    class Config:
-        from_attributes = True
 
 
 class RefreshToken(BaseModel):

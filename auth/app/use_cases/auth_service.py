@@ -1,3 +1,4 @@
+import copy
 import uuid
 from secrets import compare_digest
 
@@ -39,6 +40,14 @@ async def login_case(
     return tokens
 
 
+async def logout_case(refresh: RefreshTokenEntity, user: UserEntity, token_repo: TokenRepository):
+    """Добавление access-токена в черный список, удаление refresh-токена из redis"""
+    if refresh.jti != user.access_token.jti:
+        raise InvalidTokenError("Access and Refresh tokens do not belong to each other")
+    await token_repo.ban_access(user.access_token, ttl=user.access_token.ttl, user_id=user.id)
+    await token_repo.drop_refresh(refresh.value)
+
+
 async def refresh_case(
         old_refresh: str,
         token_repo: TokenRepository,
@@ -55,9 +64,22 @@ async def refresh_case(
         raise InvalidTokenError("Refresh token not exist or token already been used")
 
 
-async def auth_case(access: str, token_fact: TokenFactory, user_repo: UserRepository) -> UserEntity:
+async def auth_case(
+        access: str | AccessTokenEntity,
+        token_fact: TokenFactory,
+        token_repo: TokenRepository,
+        user_repo: UserRepository
+) -> UserEntity:
     """Вернуть пользователя по его access token"""
-    token: AccessTokenEntity = await token_fact.decode_token(access)
+    token: AccessTokenEntity
+    if isinstance(access, str):
+        token = await token_fact.decode_token(access, 'access')
+    elif isinstance(access, AccessTokenEntity):
+        token = copy.deepcopy(access)
+    else:
+        raise InvalidTokenError()
+    if await token_repo.check_access_in_blacklist(token.value):
+        raise AuthorizationError(extra="Access token has been banned")
     user = await user_repo.get_by_id(token.user_id)
     if not user:
         raise InvalidTokenError("Username with this token not exist")

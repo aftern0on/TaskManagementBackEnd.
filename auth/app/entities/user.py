@@ -1,5 +1,7 @@
 from passlib.context import CryptContext
 
+from app.entities.token import AccessTokenEntity
+from app.interface.schemas import OutputUserData
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -9,6 +11,7 @@ class UserEntity:
         self.id: int = int(user_id)
         self.username = username
         self.hashed_password = hashed_password
+        self.access_token: AccessTokenEntity | None = None
 
     def verify_password(self, password: str) -> bool:
         """Проверка пароля"""
@@ -18,3 +21,8 @@ class UserEntity:
     def hash_password(password: str) -> str:
         """Хеширование пароля"""
         return pwd_context.hash(password)
+
+    def get_user_data(self) -> OutputUserData:
+        """Получение данных пользователя"""
+        data = OutputUserData(id=self.id, username=self.username)
+        return data

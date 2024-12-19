@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends
 
+from app.entities.token import RefreshTokenEntity
 from app.entities.user import UserEntity
-from app.framework.dependencies import get_user_repo, get_token_repo, get_token_factory, get_current_user
+from app.framework.dependencies import get_user_repo, get_token_repo, get_token_factory, get_auth_user
 from app.framework.factory import TokenFactory
 from app.framework.repository import TokenRepository, UserRepository
-from app.interface.schemas import RegisterUser, LoginUser, RefreshToken
-from app.use_cases.auth_service import register_case, login_case, refresh_case
+from app.interface.schemas import RegisterUser, LoginUser, RefreshToken, OutputUserData
+from app.use_cases.auth_service import register_case, login_case, refresh_case, logout_case
 
 router = APIRouter()
 
@@ -31,6 +32,22 @@ async def login(
     return tokens
 
 
+@router.post("/logout/")
+async def logout(
+        refresh_data: RefreshToken,
+        token_repo: TokenRepository = Depends(get_token_repo),
+        token_fact: TokenFactory = Depends(get_token_factory),
+        user: UserEntity = Depends(get_auth_user)
+):
+    """Добавить access и refresh токены в черный список до их истечения.
+    Такие токены нельзя будет использовать для получения новых токенов или авторизации.
+    Со стороны frontend после этого требуется сброс токенов из хранилищ.
+    Если refresh-токена у клиента нет - access токен просто истечет и пользователю все равно придется авторизоваться."""
+    refresh: RefreshTokenEntity = await token_fact.decode_token(refresh_data.refresh, 'refresh')
+    await logout_case(refresh, user, token_repo)
+    return {"status": True}
+
+
 @router.post("/refresh/")
 async def refresh_token(
         refresh: RefreshToken,
@@ -43,9 +60,7 @@ async def refresh_token(
     return tokens
 
 
-@router.get('/user')
-async def get_user_data(user: UserEntity = Depends(get_current_user)):
+@router.get('/user', response_model=OutputUserData)
+async def get_user_data(user: UserEntity = Depends(get_auth_user)):
     """Защищенный метод для проверки функционала, возвращает основные данные о пользователе"""
-    user_data = user.__dict__
-    del user_data['hashed_password']
-    return user_data
+    return user.get_user_data()
