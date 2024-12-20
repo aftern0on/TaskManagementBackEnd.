@@ -9,25 +9,40 @@ services:
     volumes:
       - .:/auth
     environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/db
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/auth
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
       - db
       - redis
 
+  tasks:
+    build: ./tasks
+    container_name: tasks
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/tasks
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/tasks
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - db
+      - redis
 
   db:
     image: postgres:15
-    container_name: postgres_db
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: db
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./init-dbs.sql:/docker-entrypoint-initdb.d/init-dbs.sql
+    user: postgres
 
   redis:
     image: redis:7
