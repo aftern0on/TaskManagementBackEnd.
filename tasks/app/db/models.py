@@ -1,4 +1,7 @@
 from datetime import datetime, date
+from typing import List
+
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlmodel import SQLModel, Field, Relationship
 
 
@@ -29,5 +32,5 @@ class Project(SQLModel, table=True):
     status: str
     priority: str
     creator_id: int
-    users_ids = list[int]
-    tasks: list[Task] | None = Relationship(back_populates='project')
+    # users_ids: List[int]
+    tasks: List[Task] | None = Relationship(back_populates='project')
