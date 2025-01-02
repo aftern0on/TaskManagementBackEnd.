@@ -2,6 +2,7 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
+from sqlmodel import SQLModel
 
 from app.db.database import engine
 
