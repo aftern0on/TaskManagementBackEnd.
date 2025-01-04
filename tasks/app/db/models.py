@@ -29,4 +29,4 @@ class Project(ProjectBase, table=True):
     description: str = ""
     creator_id: int
     users_ids: List[int] = Field(default=[], sa_column=Column(ARRAY(Integer)))
-    tasks: list[Task] | None = Relationship(back_populates='project')
+    tasks: list[Task] | None = Relationship(back_populates='project', cascade_delete=True)

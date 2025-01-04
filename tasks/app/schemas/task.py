@@ -15,7 +15,17 @@ class TaskBase(SQLModel):
 
 class CreateTask(TaskBase):
     """Схема создания задачи"""
-    pass
+    project_id: int
+
+
+class UpdateTask(TaskBase):
+    """Схема обновления задачи"""
+    name: str | None = None
+    description: str | None = None
+    status: str | None = None
+    priority: str | None = None
+    deadline: datetime | None = None
+    executor_id: int | None = None
 
 
 class GetTask(TaskBase):
@@ -24,3 +34,4 @@ class GetTask(TaskBase):
     creator_id: int
     create_time: datetime
     last_update_time: datetime
+    project_id: int

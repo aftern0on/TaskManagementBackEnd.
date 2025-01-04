@@ -18,13 +18,24 @@ class CreateProject(ProjectBase):
     pass
 
 
+class PatchProject(SQLModel):
+    """Схема обновление существующего проекта"""
+    name: str | None = None
+    description: str | None = None
+
+
 class ResultCreateProject(CreateProject):
     """Схема результата создания проекта"""
     id: int
     creator_id: int
 
 
-class GetProject(ProjectBase):
+class ResultPatchProject(ResultCreateProject):
+    """Схема результата обновления проекта"""
+    pass
+
+
+class ResultGetProject(ProjectBase):
     """Схема проекта"""
     id: int
     creator_id: int
