@@ -1,6 +1,10 @@
+import logging
+import threading
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.framework.grpc import serve
 from app.framework.redis import redis_client
 from app.interface.auth import router as auth_router
 
@@ -28,6 +32,11 @@ async def redis():
         return {"redis": "alive" if pong else "dead"}
     except Exception as e:
         return {"error": str(e)}
+
+
+@app.on_event("startup")
+def startup_event():
+    threading.Thread(target=serve, daemon=True).start()
 
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])

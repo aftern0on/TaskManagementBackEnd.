@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from app.entities.token import RefreshTokenEntity
 from app.entities.user import UserEntity
-from app.framework.dependencies import get_user_repo, get_token_repo, get_token_factory, get_auth_user
+from app.framework.dependencies import get_user_repo, get_token_repo, get_token_factory, get_auth_user_from_credentials
 from app.framework.factory import TokenFactory
 from app.framework.repository import TokenRepository, UserRepository
 from app.interface.schemas import RegisterUser, LoginUser, RefreshToken, OutputUserData
@@ -37,7 +37,7 @@ async def logout(
         refresh_data: RefreshToken,
         token_repo: TokenRepository = Depends(get_token_repo),
         token_fact: TokenFactory = Depends(get_token_factory),
-        user: UserEntity = Depends(get_auth_user)
+        user: UserEntity = Depends(get_auth_user_from_credentials)
 ):
     """Добавить access и refresh токены в черный список до их истечения.
     Такие токены нельзя будет использовать для получения новых токенов или авторизации.
@@ -61,6 +61,6 @@ async def refresh_token(
 
 
 @router.get('/user', response_model=OutputUserData)
-async def get_user_data(user: UserEntity = Depends(get_auth_user)):
+async def get_user_data(user: UserEntity = Depends(get_auth_user_from_credentials)):
     """Защищенный метод для проверки функционала, возвращает основные данные о пользователе"""
     return user.get_user_data()

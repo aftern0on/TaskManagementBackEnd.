@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+service AuthService {
+  rpc AuthUser (AuthUserRequest) returns (AuthUserResponse) {};
+}
+
+message AuthUserRequest {
+  string token = 1;
+}
+
+message AuthUserResponse {
+  int32 user_id = 1;
+  string username = 2;
+}
