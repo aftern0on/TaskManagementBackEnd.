@@ -18,7 +18,7 @@ async def get_task(task_id: int, task_repo: TaskRepository = Depends(get_task_re
 
 @router.patch("/{task_id}", response_model=GetTask)
 async def update_task(task_id: int, updates: UpdateTask, task_repo: TaskRepository = Depends(get_task_repo)):
-    """Обновление существующей задачи"""
+    """Обновление существующей задачи. Необязательно отправлять все поля, достаточно только обновленные"""
     task: Task = await task_repo.update(task_id, updates.dict())
     return GetTask.from_orm(task)
 
@@ -38,7 +38,7 @@ async def create_task(
 
 @router.delete("/{task_id}")
 async def delete_task(task_id: int, task_repo: TaskRepository = Depends(get_task_repo)):
-    """Удаление задачи с указанным идентификатором. Возвращает ID, если операция прошла успешно."""
+    """Удаление задачи с указанным идентификатором. Возвращает ID, если операция прошла успешно"""
     task: Task = await task_repo.get_by_id(task_id)
     await task_repo.delete(task)
     return task_id
