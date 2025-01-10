@@ -10,6 +10,7 @@ from app.framework.models import User as UserModel
 class UserRepository:
     def __init__(self, db: AsyncSession):
         self.db: AsyncSession = db
+        self.auto_commit: bool = True
 
     async def get_by_username(self, username: str) -> UserEntity | None:
         """Получить пользователя из БД по его Username"""
@@ -39,7 +40,7 @@ class UserRepository:
         """Создание нового пользователя в БД"""
         new_user = UserModel(username=username, hashed_password=hashed_password)
         self.db.add(new_user)
-        await self.db.commit()
+        await self.db.commit() if self.auto_commit else await self.db.flush()
         await self.db.refresh(new_user)
         return UserEntity(
             user_id=new_user.id,

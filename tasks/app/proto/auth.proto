@@ -1,8 +1,7 @@
 syntax = "proto3";
-package auth;
 
-service Auth {
-  rpc AuthUser (AuthUserRequest) returns (AuthUserResponse);
+service AuthService {
+  rpc AuthUser (AuthUserRequest) returns (AuthUserResponse) {};
 }
 
 message AuthUserRequest {

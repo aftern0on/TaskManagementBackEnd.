@@ -1,5 +1,6 @@
 import copy
 import uuid
+import aioh
 from secrets import compare_digest
 
 from app.entities.token import AccessTokenEntity, TokenEntity, RefreshTokenEntity
@@ -7,17 +8,23 @@ from app.entities.user import UserEntity
 from app.exceptions import InvalidTokenError, AuthorizationError, RegistrationError
 from app.framework.factory import TokenFactory
 from app.framework.repository import UserRepository, TokenRepository
+from app.tools import transaction
 
 
-async def register_case(username: str, password: str, confirm_password, user_repo: UserRepository):
-    """Аутентификация пользователя, проверка введенных данных исходя из строчки в бд"""
-    if not compare_digest(password, confirm_password):
-        raise RegistrationError("Passwords don't match")
-    existing_user = await user_repo.get_by_username(username)
-    if existing_user:
-        raise RegistrationError(f"User {username} already exist")
-    hashed_password = UserEntity.hash_password(password)
-    return await user_repo.create(username, hashed_password)
+async def register_case(username: str, password: str, confirm_password, user_repo: UserRepository) -> UserEntity:
+    """Аутентификация пользователя, проверка введенных данных исходя из строчки в бд.
+    Делает запрос на создание проекта в таск-менеджере.
+    """
+    user_repo.auto_commit = False
+    async with transaction(user_repo.db):
+        if not compare_digest(password, confirm_password):
+            raise RegistrationError("Passwords don't match")
+        existing_user = await user_repo.get_by_username(username)
+        if existing_user:
+            raise RegistrationError(f"User {username} already exist")
+        hashed_password = UserEntity.hash_password(password)
+        user = await user_repo.create(username, hashed_password)
+
 
 
 async def login_case(

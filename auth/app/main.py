@@ -1,11 +1,12 @@
+import asyncio
 import logging
 import threading
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.framework.grpc import serve
 from app.framework.redis import redis_client
+from app.grpc_server import main
 from app.interface.auth import router as auth_router
 
 app = FastAPI()
@@ -35,8 +36,8 @@ async def redis():
 
 
 @app.on_event("startup")
-def startup_event():
-    threading.Thread(target=serve, daemon=True).start()
+async def startup_event():
+    asyncio.create_task(main())
 
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])

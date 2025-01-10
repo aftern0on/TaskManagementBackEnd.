@@ -12,6 +12,7 @@ sqlalchemy = {extras = ["asyncio"], version = "*"}
 sqlalchemy-mixins = "*"
 sqlmodel = "*"
 grpcio-tools = "*"
+grpclib = "*"
 
 [dev-packages]
 

@@ -1,14 +1,12 @@
 from fastapi import Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.entities.token import AccessTokenEntity
+from app.config import SECRET_KEY, ENCODE_ALGORITHM
 from app.entities.user import UserEntity
-from app.exceptions import AuthorizationError
 from app.framework.database import AsyncSession
 from app.framework.factory import TokenFactory
 from app.framework.redis import redis_client
 from app.framework.repository import UserRepository, TokenRepository
-from app.config import SECRET_KEY, ENCODE_ALGORITHM
 from app.use_cases.auth_service import auth_case
 
 

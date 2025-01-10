@@ -16,6 +16,9 @@ redis = {extras = ["async"], version = "*"}
 alembic = "*"
 grpcio-tools = "*"
 grpcio = "*"
+protobuf = "*"
+grpclib = {extras = ["protobuf"], version = "*"}
+aiohttp = "*"
 
 [dev-packages]
 

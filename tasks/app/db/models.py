@@ -2,11 +2,13 @@ from datetime import datetime
 from typing import List
 
 from sqlmodel import Field, Relationship, ARRAY, Column, Integer
+
+from app.db.mixins import ProjectMixins, TaskMixins
 from app.schemas.project import ProjectBase
 from app.schemas.task import TaskBase
 
 
-class Task(TaskBase, table=True):
+class Task(TaskBase, TaskMixins.Permissions, table=True):
     __tablename__ = "tasks"
     id: int = Field(default=None, primary_key=True, index=True)
     name: str
@@ -22,7 +24,7 @@ class Task(TaskBase, table=True):
     project: 'Project' = Relationship(back_populates='tasks')
 
 
-class Project(ProjectBase, table=True):
+class Project(ProjectBase, ProjectMixins.Permissions, table=True):
     __tablename__ = "projects"
     id: int = Field(default=None, primary_key=True, index=True)
     name: str

@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import SQLModel, select
 
 from app.db.database import AsyncSession
-from exceptions import NotFoundError
+from app.exceptions import NotFoundError
 
 T = TypeVar("T", bound=SQLModel)
 
