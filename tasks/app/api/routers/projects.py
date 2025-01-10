@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.db.models import Project
 from app.dependencies import get_project_repo, get_auth_user_from_bearer, auth_from_api_key
@@ -23,6 +23,29 @@ async def get_project(
     project: Project = await project_repo.get_by_id(project_id, ["tasks"])
     await PermissionService.is_member(project, user.id, raise_error=True)
     return ResultGetProject.from_orm(project)
+
+
+@router.get("/", response_model=list[ResultCreateProject])
+async def get_projects(
+        creator_user_id: int | None = Query(None, description="Получение проектов, которые принадлежат пользователю"),
+        member_user_id: int | None = Query(None, description="Получение проектов, в которых пользователь участвует"),
+        limit: int = Query(100, description="Обрезать результат до определенного количества"),
+        offset: int = Query(0, description="Смещение для пагинации"),
+        order_by: str = Query(None, description="Сортировка по полю (например 'id' или '-id')"),
+        project_repo: ProjectRepository = Depends(get_project_repo),
+        user: UserBase = Depends(get_auth_user_from_bearer)
+):
+    """Получение проектов по определенным query-параметрам"""
+    filtering = {}
+    if creator_user_id: filtering["creator_user_id"] = creator_user_id
+    if member_user_id: filtering["users_ids"] = member_user_id
+    projects: list[Project] = await project_repo.get_list(
+        filters=filtering,
+        limit=limit,
+        offset=offset,
+        order_by=order_by
+    )
+    return [ResultCreateProject.from_orm(project) for project in projects]
 
 
 @router.patch("/{project_id}", response_model=ResultPatchProject)
