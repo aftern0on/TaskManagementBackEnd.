@@ -19,6 +19,7 @@ grpcio = "*"
 protobuf = "*"
 grpclib = {extras = ["protobuf"], version = "*"}
 aiohttp = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

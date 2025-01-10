@@ -58,3 +58,13 @@ class NotFoundError(BaseAPIError):
 class ForbiddenError(BaseAPIError):
     def __init__(self, detail: str = "Action is forbidden", extra: str = None):
         super().__init__(detail=detail, status_code=status.HTTP_403_FORBIDDEN, code="forbidden", extra=extra)
+
+
+class InternalServerError(BaseAPIError):
+    def __init__(self, detail: str = "Internal server error", extra: str = None):
+        super().__init__(
+            detail=detail,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            code="internal", extra=extra
+        )
+

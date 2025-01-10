@@ -13,6 +13,7 @@ sqlalchemy-mixins = "*"
 sqlmodel = "*"
 grpcio-tools = "*"
 grpclib = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

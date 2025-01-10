@@ -1,6 +1,5 @@
 import asyncio
-import logging
-import threading
+import dotenv
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +8,7 @@ from app.framework.redis import redis_client
 from app.grpc_server import main
 from app.interface.auth import router as auth_router
 
+dotenv.load_dotenv()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,

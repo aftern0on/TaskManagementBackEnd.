@@ -18,6 +18,11 @@ class CreateProject(ProjectBase):
     pass
 
 
+class ICreateProject(CreateProject):
+    """Схема создания проекта для внутреннего API"""
+    creator_id: int
+
+
 class PatchProject(SQLModel):
     """Схема обновление существующего проекта"""
     name: str | None = None

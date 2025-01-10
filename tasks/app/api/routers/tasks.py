@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.db.models import Task, Project
-from app.dependencies import get_task_repo, get_project_repo, get_auth_user_from_credentials
+from app.dependencies import get_task_repo, get_project_repo, get_auth_user_from_bearer
 from app.exceptions import ForbiddenError
 from app.repositories.projects import ProjectRepository
 from app.repositories.tasks import TaskRepository
@@ -30,7 +30,7 @@ async def create_task(
         task_create: CreateTask,
         task_repo: TaskRepository = Depends(get_task_repo),
         proj_repo: ProjectRepository = Depends(get_project_repo),
-        user: UserBase = Depends(get_auth_user_from_credentials)
+        user: UserBase = Depends(get_auth_user_from_bearer)
 ):
     """Создание новой задачи"""
     project: Project = await proj_repo.get_by_id(task_create.project_id)
@@ -43,7 +43,7 @@ async def create_task(
 @router.delete("/{task_id}")
 async def delete_task(
         task_id: int, task_repo: TaskRepository = Depends(get_task_repo),
-        user: UserBase = Depends(get_auth_user_from_credentials)
+        user: UserBase = Depends(get_auth_user_from_bearer)
 ):
     """Удаление задачи с указанным идентификатором. Возвращает ID, если операция прошла успешно"""
     task: Task = await task_repo.get_by_id(task_id)

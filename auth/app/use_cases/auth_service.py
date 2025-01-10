@@ -1,14 +1,14 @@
 import copy
 import uuid
-import aioh
 from secrets import compare_digest
 
 from app.entities.token import AccessTokenEntity, TokenEntity, RefreshTokenEntity
 from app.entities.user import UserEntity
-from app.exceptions import InvalidTokenError, AuthorizationError, RegistrationError
+from app.exceptions import InvalidTokenError, AuthorizationError, RegistrationError, InternalServerError
 from app.framework.factory import TokenFactory
 from app.framework.repository import UserRepository, TokenRepository
 from app.tools import transaction
+from app.use_cases.task_service import register_new_project
 
 
 async def register_case(username: str, password: str, confirm_password, user_repo: UserRepository) -> UserEntity:
@@ -24,7 +24,9 @@ async def register_case(username: str, password: str, confirm_password, user_rep
             raise RegistrationError(f"User {username} already exist")
         hashed_password = UserEntity.hash_password(password)
         user = await user_repo.create(username, hashed_password)
-
+        if await register_new_project(user.id) is None:
+            raise InternalServerError("Project in task-manager not created")
+        return user
 
 
 async def login_case(
